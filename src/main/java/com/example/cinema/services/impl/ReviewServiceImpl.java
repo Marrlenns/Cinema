@@ -32,6 +32,14 @@ public class ReviewServiceImpl implements ReviewService {
         movieRepository.save(movie);
     }
 
+    private void addReviewToUser(User user, Review review){
+        List<Review> userReviews = new ArrayList<>();
+        if(user.getUserReviews() != null)userReviews = user.getUserReviews();
+        userReviews.add(review);
+        user.setUserReviews(userReviews);
+        userRepository.save(user);
+    }
+
     @Override
     public void register(ReviewRequest reviewRequest){
         Review review = new Review();
@@ -47,5 +55,6 @@ public class ReviewServiceImpl implements ReviewService {
         review.setStars(reviewRequest.getStars());
         Review newReview = reviewRepository.saveAndFlush(review);
         addReviewToMovie(movie.get(), newReview);
+        addReviewToUser(user.get(), newReview);
     }
 }

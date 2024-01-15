@@ -57,4 +57,36 @@ public class ReviewServiceImpl implements ReviewService {
         addReviewToMovie(movie.get(), newReview);
         addReviewToUser(user.get(), newReview);
     }
+
+    private void deleteReviewOfMovie(Movie movie, Long id){
+        List<Review> reviewList = movie.getReviews();
+        List<Review> reviews = new ArrayList<>();
+        for(Review review: reviewList){
+            if(!review.getId().equals(id))reviews.add(review);
+        }
+        movie.setReviews(reviews);
+        movieRepository.save(movie);
+    }
+
+    private void deleteUserReview(User user, Long id){
+        List<Review> reviewList = user.getUserReviews();
+        List<Review> reviews = new ArrayList<>();
+        for(Review review: reviewList){
+            if(!review.getId().equals(id))reviews.add(review);
+        }
+        user.setUserReviews(reviews);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Optional<Review> review = reviewRepository.findById(id);
+        if(review.isEmpty())
+            throw new BadRequestException("Review not found");
+        Movie movie = movieRepository.findById(review.get().getMovie().getId()).get();
+        deleteReviewOfMovie(movie, id);
+        User user = userRepository.findById(review.get().getUser().getId()).get();
+        deleteUserReview(user, id);
+        reviewRepository.deleteById(id);
+    }
 }

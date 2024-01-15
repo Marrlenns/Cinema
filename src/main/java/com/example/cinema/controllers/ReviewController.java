@@ -32,34 +32,9 @@ public class ReviewController {
         return "Review added successfully!";
     }
 
-    void deleteReviewOfMovie(Movie movie, Long id){
-        List<Review> reviewList = movie.getReviews();
-        List<Review> reviews = new ArrayList<>();
-        for(Review review: reviewList){
-            if(!review.getId().equals(id))reviews.add(review);
-        }
-        movie.setReviews(reviews);
-        movieRepository.save(movie);
-    }
-
-    void deleteUserReview(User user, Long id){
-        List<Review> reviewList = user.getUserReviews();
-        List<Review> reviews = new ArrayList<>();
-        for(Review review: reviewList){
-            if(!review.getId().equals(id))reviews.add(review);
-        }
-        user.setUserReviews(reviews);
-        userRepository.save(user);
-    }
-
     @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable Long id){
-        Review review = reviewRepository.findById(id).get();
-        Movie movie = movieRepository.findById(review.getMovie().getId()).get();
-        deleteReviewOfMovie(movie, id);
-        User user = userRepository.findById(review.getUser().getId()).get();
-        deleteUserReview(user, id);
-        reviewRepository.deleteById(id);
+        reviewService.deleteById(id);
         return "Review is deleted!";
     }
 }

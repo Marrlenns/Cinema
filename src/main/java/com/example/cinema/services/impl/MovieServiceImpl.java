@@ -7,6 +7,7 @@ import com.example.cinema.dto.movie.genre.GenreRequest;
 import com.example.cinema.entities.Director;
 import com.example.cinema.entities.Genre;
 import com.example.cinema.entities.Movie;
+import com.example.cinema.entities.Review;
 import com.example.cinema.exceptions.BadRequestException;
 import com.example.cinema.exceptions.NotFoundException;
 import com.example.cinema.mappers.MovieMapper;
@@ -14,6 +15,7 @@ import com.example.cinema.repositories.DirectorRepository;
 import com.example.cinema.repositories.GenreRepository;
 import com.example.cinema.repositories.MovieRepository;
 import com.example.cinema.services.MovieService;
+import com.example.cinema.services.ReviewService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class MovieServiceImpl implements MovieService {
     private final DirectorRepository directorRepository;
     private final MovieMapper movieMapper;
     private final GenreRepository genreRepository;
+    private final ReviewService reviewService;
 
     private void addFilmToDirector(Director director, Movie movie){
         List<Movie> directorMovies = new ArrayList<>();
@@ -79,5 +82,44 @@ public class MovieServiceImpl implements MovieService {
         Genre genre = new Genre();
         genre.setType(genreRequest.getType());
         genreRepository.save(genre);
+    }
+
+    private void deleteAllReviews(Movie movie){
+        List<Review> reviews = movie.getReviews();
+        for(Review review: reviews) reviewService.deleteById(review.getId());
+    }
+
+    private void deleteMovieDirector(Movie movie){
+        Director director = movie.getDirector();
+        List<Movie> movies = director.getDirectorMovies();
+        List<Movie> newMovies = new ArrayList<>();
+        for(Movie movie1: movies)
+            if(!movie1.getId().equals(movie.getId()))newMovies.add(movie1);
+        director.setDirectorMovies(newMovies);
+        directorRepository.save(director);
+    }
+
+    private void deleteMovieGenre(Movie movie){
+        List<Genre> genres = movie.getGenres();
+        for(Genre genre: genres){
+            List<Movie> movies = genre.getMovies();
+            List<Movie> newMovies = new ArrayList<>();
+            for(Movie movie1: movies){
+                if(!movie1.getId().equals(movie.getId()))newMovies.add(movie1);
+            }
+            genre.setMovies(newMovies);
+            genreRepository.save(genre);
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Optional<Movie> movie = movieRepository.findById(id);
+        if(movie.isEmpty())
+            throw new BadRequestException("Movie doesn't exist!");
+        deleteAllReviews(movie.get());
+        deleteMovieDirector(movie.get());
+        deleteMovieGenre(movie.get());
+        movieRepository.deleteById(id);
     }
 }

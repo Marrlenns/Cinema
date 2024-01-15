@@ -15,4 +15,6 @@ public interface MovieService {
     MovieDetailResponse getById(Long id);
 
     void newGenre(GenreRequest genreRequest);
+
+    void deleteById(Long id);
 }

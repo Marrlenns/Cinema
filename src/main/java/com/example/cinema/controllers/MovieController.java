@@ -33,6 +33,12 @@ public class MovieController {
         return movieService.getById(id);
     }
 
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable Long id){
+        movieService.deleteById(id);
+        return "Movie deleted successfully!";
+    }
+
     @PostMapping("/genre/new")
     public String newGenre(@RequestBody GenreRequest genreRequest){
         movieService.newGenre(genreRequest);

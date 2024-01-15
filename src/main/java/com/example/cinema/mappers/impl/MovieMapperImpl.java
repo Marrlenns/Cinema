@@ -21,6 +21,7 @@ public class MovieMapperImpl implements MovieMapper {
 
     public MovieResponse toDto(Movie movie){
         MovieResponse movieResponse = new MovieResponse();
+        movieResponse.setId(movie.getId());
         movieResponse.setTitle(movie.getTitle());
         movieResponse.setFilmedDate(movie.getFilmedDate());
         return movieResponse;

@@ -17,6 +17,7 @@ public class User {
     private Long id;
     private String nickname;
     private String birthDate;
+    private String password;
 
     @OneToMany(cascade = CascadeType.ALL)
     List<Review> userReviews;
